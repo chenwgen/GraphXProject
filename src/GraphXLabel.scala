@@ -17,8 +17,8 @@ object GraphXLabel {
     //顶点的数据类型是VD:(String,Int)
     val vertexArray = Array(
       (1L, (1.0,0.0)),
-      (2L, (1.0,0.0)),
-      (3L, (0.0, 0.0))
+      (2L, (1.0,1.0)),
+      (3L, (0.0, 1.0))
     )
     //边的数据类型ED:Int
     val edgeArray = Array(
@@ -34,28 +34,42 @@ object GraphXLabel {
 //    graph.edges.filter(ed=>ed.srcId==1).collect.foreach(ed=>println(ed.srcId+" to "+ed.dstId))
     val initialGraph = graph.mapVertices((a,b)=>b)
     var step=1
-    val ssp=initialGraph.pregel(0.0,1)(
+    val ssp=initialGraph.pregel(-1.0,1)(
       (vt,labela,labelb)=>{
         println("step"+step+"----"+"vt:"+vt+","+"labela:"+labela.toString()+",labelb:"+labelb)
         step=step+1
+        if(labelb >= 0)
         (labelb,labela._2)
+        else labela
       } ,
       triplet => {
-        println("step"+step+"----"+"srcId:"+triplet.srcId+",dstAttr:"+triplet.dstAttr._1+",attr:"+triplet.attr)
-//        println("triplet.dstAttr._1:"+triplet.dstAttr._1)
-//        println("triplet.attr:"+triplet.attr)
-        step=step+1
+//        println("step"+step+"----"+"srcId:"+triplet.srcId+",dstAttr:"+triplet.dstAttr._1+",attr:"+triplet.attr)
+//        step=step+1
         Iterator((triplet.srcId,triplet.dstAttr._1*triplet.attr))
       },
       (a,b) =>{
-        println("step"+step+"----"+"a:"+a+",b:"+b)
-        step=step+1
-        println("=======")
+//        println("step"+step+"----"+"a:"+a+",b:"+b)
+//        step=step+1
+//        println("=======")
         a+b
       }
     )
-    initialGraph
+    val initmessage: (Double, Double)=null
+    val sspd=initialGraph.pregel(initmessage,1)(
+      (vt,labela,labelb)=>{
+        if(labelb==null) labela else labelb
+      } ,
+      triplet => {
+        Iterator((triplet.srcId,(triplet.dstAttr._1*triplet.attr,triplet.dstAttr._2*triplet.attr)))
+      },
+      (a,b) =>{
+        (a._1+b._1,a._2+b._2)
+      }
+    )
     println(ssp.vertices.collect.mkString("\n"))
+    println("========")
+    println(sspd.vertices.collect.mkString("\n"))
+
     sc.stop()
   }
 }

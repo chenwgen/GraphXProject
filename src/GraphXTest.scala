@@ -39,7 +39,7 @@ object GraphXTest {
     val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgeArray)
     //构造图Graph[VD,ED]
     val graph: Graph[(String, Int), Int] = Graph(vertexRDD, edgeRDD)
-    val aa=Graph(vertexRDD, edgeRDD)
+
     println("***********************************************")
     println("属性演示")
     println("**********************************************************")
@@ -144,8 +144,9 @@ object GraphXTest {
       },
       (a,b) => math.min(a,b) // 最短距离
     )
-    println(sssp.vertices.collect.mkString("\n"))
 
+    println(sssp.vertices.collect.mkString("\n"))
+    println(sssp.edges.collect.mkString("\n"))
     sc.stop()
   }
 }
